@@ -1,7 +1,9 @@
 from flask import request
 from models.user import User
+from validation.parser import user_parser
 from utils.custom_decorator import expect
-from flask_restx import Resource, Namespace, fields
+from validation.validator import validate_designation
+from flask_restx import Resource, Namespace, fields, abort
 
 user_ns = Namespace("users", description="A namespace for Users")
 
@@ -35,16 +37,16 @@ class UsersResource(Resource):
     @expect(user_ns, user_api_model, ["id"])  # using my own custom decorator
     def post(self):
         """Create a new user"""
-        data = request.get_json()
-        new_user = User(
-            name=data.get("name"),
-            email=data.get("email"),
-            department=data.get("department"),
-            designation=data.get("designation"),
-            contact=data.get("contact"),
-            role=data.get("role"),
-            manager_id=data.get("manager_id"),
-        )
+        # Parse and validate request data
+        args = user_parser.parse_args()
+
+        # Validate designation
+        designation = validate_designation(args["department"], args["designation"])
+        if not designation:
+            abort(400, "Invalid designation")
+
+        user_data = {key: value for key, value in args.items() if value is not None}
+        new_user = User(**user_data)
         new_user.save()
         return new_user
 
@@ -61,17 +63,16 @@ class UserResource(Resource):
     @expect(user_ns, user_api_model, ["id"])
     def put(self, id):
         """Update a user by id"""
-        employee_to_update = User.query.get_or_404(id)
-        data = request.get_json()
-        employee_to_update.update(
-            data.get("name"),
-            data.get("email"),
-            data.get("department"),
-            data.get("designation"),
-            data.get("contact"),
-            data.get("role"),
-            data.get("manager_id"),
-        )
+        user_detail = User.query.get_or_404(id)
+        args = user_parser.parse_args()
+
+        # Validate designation
+        designation = validate_designation(args["department"], args["designation"])
+        if not designation:
+            abort(400, "Invalid designation")
+
+        updated_data = {key: value for key, value in args.items() if value is not None}
+        user_detail.update(**updated_data)
         return {"message": "User updated successfully."}
 
     def delete(self, id):

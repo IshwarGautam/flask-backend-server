@@ -2,6 +2,7 @@ from flask import request
 from models.user import User
 from utils.custom_decorator import expect
 from models.employee_leave import EmployeeLeave
+from validation.parser import employee_leave_parser
 from flask_restx import Resource, Namespace, fields, abort
 
 employee_leave_ns = Namespace(
@@ -47,19 +48,10 @@ class EmployeeLeavesResource(Resource):
         if not employee:
             abort(404, "Employee not found")
 
-        # Get the leave data from the request
-        data = request.get_json()
-
-        # Create the leave record associated with the employee
-        leave_info = EmployeeLeave(
-            employee_id=id,
-            status=data.get("status"),
-            type=data.get("type"),
-            duration_from=data.get("duration_from"),
-            duration_to=data.get("duration_to"),
-            reason=data.get("reason"),
-        )
-
+        # Parse and validate request data
+        args = employee_leave_parser.parse_args()
+        leave_data = {key: value for key, value in args.items() if value is not None}
+        leave_info = EmployeeLeave(**{"employee_id": id, **leave_data})
         leave_info.save()
         return leave_info
 
