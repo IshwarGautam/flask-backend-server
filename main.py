@@ -1,4 +1,4 @@
-"""Chapter 2: Create User API, table and routes."""
+"""Chapter 3: Create Employee leave API, table and routes."""
 
 # pip install virtualenv
 # virtualenv venv
@@ -12,11 +12,13 @@ from config import DevConfig
 from database.exts import db
 from api.user_routes import user_ns
 from flask_restx import Api, Resource
+from api.employee_leave_routes import employee_leave_ns
 
 app = Flask(__name__)
 api = Api(app, doc="/docs", prefix="/api")
 
 api.add_namespace(user_ns)
+api.add_namespace(employee_leave_ns)
 
 app.config.from_object(DevConfig)  # Load the DevConfig settings
 
