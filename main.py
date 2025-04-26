@@ -1,23 +1,26 @@
-"""Chapter 4: Data validation with parser."""
+"""Chapter 5: Implement login and sign up."""
 
 # pip install virtualenv
 # virtualenv venv
 # venv/Scripts/activate (for windows)
 # source venv/bin/activate (for linux/macOS)
 
-# pip install flask flask-restx python-decouple flask-sqlalchemy flask-cors
+# pip install flask flask-restx python-decouple flask-sqlalchemy flask-cors flask-jwt-extended
 from flask import Flask
 from flask_cors import CORS
 from config import DevConfig
 from database.exts import db
+from api.auth_routes import auth_ns
 from api.user_routes import user_ns
 from flask_restx import Api, Resource
+from flask_jwt_extended import JWTManager
 from api.employee_leave_routes import employee_leave_ns
 
 app = Flask(__name__)
 api = Api(app, doc="/docs", prefix="/api")
 
 api.add_namespace(user_ns)
+api.add_namespace(auth_ns)
 api.add_namespace(employee_leave_ns)
 
 app.config.from_object(DevConfig)  # Load the DevConfig settings
@@ -27,6 +30,8 @@ CORS(app)
 
 # Initialize the database
 db.init_app(app)
+
+JWTManager(app)
 
 
 @app.route("/")

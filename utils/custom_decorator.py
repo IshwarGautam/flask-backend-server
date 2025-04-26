@@ -1,4 +1,4 @@
-def expect(ns, model, exclude_fields, name_suffix="Input"):
+def expect(ns, model, exclude_fields=[], name_suffix="Input"):
     """
     Returns a decorator like @ns.expect(), but removes specified fields from the model.
     """
