@@ -42,7 +42,7 @@ class SignUp(Resource):
 
 @auth_ns.route("/login")
 class Login(Resource):
-    @auth_ns.expect(auth_api_model)
+    @expect(auth_ns, auth_api_model)
     def post(self):
         data = request.get_json()
 
@@ -52,9 +52,7 @@ class Login(Resource):
         employee_obj = Employee.query.filter_by(email=email).first()
         employee_detail = auth_ns.marshal(employee_obj, auth_api_model)
 
-        if employee_obj and check_password_hash(
-            employee_detail["password"], password
-        ):
+        if employee_obj and check_password_hash(employee_detail["password"], password):
             access_token = create_access_token(identity=email)
             refresh_token = create_refresh_token(identity=email)
 

@@ -1,8 +1,4 @@
-<<<<<<< HEAD
 """Chapter 5: Implement login and sign up."""
-=======
-"""Chapter 4: Data validation with parser."""
->>>>>>> 5a6a1423a01c033dc1efb35c36bfb2ea438a690e
 
 # pip install virtualenv
 # virtualenv venv
