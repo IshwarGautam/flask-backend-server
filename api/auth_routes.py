@@ -2,9 +2,11 @@ from models.user import User
 from flask import request, jsonify
 from models.employee import Employee
 from utils.custom_decorator import expect
+from .user_routes import user_ns, user_api_model
 from flask_restx import Resource, Namespace, fields, abort
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_jwt_extended import (
+    get_jwt,
     jwt_required,
     get_jwt_identity,
     create_access_token,
@@ -52,9 +54,16 @@ class Login(Resource):
         employee_obj = Employee.query.filter_by(email=email).first()
         employee_detail = auth_ns.marshal(employee_obj, auth_api_model)
 
+        user_obj = employee_obj.user
+        user_detail = user_ns.marshal(user_obj, user_api_model)
+
         if employee_obj and check_password_hash(employee_detail["password"], password):
-            access_token = create_access_token(identity=email)
-            refresh_token = create_refresh_token(identity=email)
+            access_token = create_access_token(
+                identity=email, additional_claims={"role": user_detail["role"]}
+            )
+            refresh_token = create_refresh_token(
+                identity=email, additional_claims={"role": user_detail["role"]}
+            )
 
             return jsonify(
                 {"access_token": access_token, "refresh_token": refresh_token}
@@ -68,5 +77,10 @@ class RefreshToken(Resource):
     @jwt_required(refresh=True)
     def post(self):
         current_user = get_jwt_identity()
-        new_access_token = create_access_token(identity=current_user)
-        return jsonify({"access_token": new_access_token}), 200
+        claims = get_jwt()
+
+        new_access_token = create_access_token(
+            identity=current_user, additional_claims={"role": claims.get("role")}
+        )
+
+        return jsonify({"access_token": new_access_token})

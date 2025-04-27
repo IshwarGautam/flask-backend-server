@@ -1,7 +1,7 @@
-from flask import request
+from constants import ROLE
 from models.user import User
 from validation.parser import user_parser
-from utils.custom_decorator import expect
+from utils.custom_decorator import expect, role
 from validation.validator import validate_designation
 from flask_restx import Resource, Namespace, fields, abort
 
@@ -35,6 +35,7 @@ class UsersResource(Resource):
     @user_ns.marshal_with(user_api_model)
     # @user_ns.expect(user_api_model)
     @expect(user_ns, user_api_model, ["id"])  # using my own custom decorator
+    @role([ROLE["ADMIN"]])
     def post(self):
         """Create a new user"""
         # Parse and validate request data
@@ -65,6 +66,7 @@ class UserResource(Resource):
         return user
 
     @expect(user_ns, user_api_model, ["id"])
+    @role([ROLE["ADMIN"]])
     def put(self, id):
         """Update a user by id"""
         user_detail = User.query.get_or_404(id)
@@ -79,6 +81,7 @@ class UserResource(Resource):
         user_detail.update(**updated_data)
         return {"message": "User updated successfully."}
 
+    @role([ROLE["ADMIN"]])
     def delete(self, id):
         """Delete a user by id"""
         user_to_delete = User.query.get_or_404(id)

@@ -1,7 +1,8 @@
 from flask import request
+from constants import ROLE
 from models.user import User
-from utils.custom_decorator import expect
 from models.employee_leave import EmployeeLeave
+from utils.custom_decorator import expect, role
 from validation.parser import employee_leave_parser
 from flask_restx import Resource, Namespace, fields, abort
 
@@ -41,6 +42,7 @@ class EmployeeLeavesResource(Resource):
     @expect(employee_leave_ns, employee_leave_api_model, ["id", "employee_id"])
     @employee_leave_ns.response(200, "Employee leave requested successfully")
     @employee_leave_ns.response(404, "Employee not found")
+    @role([ROLE["EMPLOYEE"]])
     def post(self, id):
         """Apply a leave"""
         # Check if the employee exists
@@ -60,6 +62,7 @@ class EmployeeLeavesResource(Resource):
 class EmployeeLeaveResource(Resource):
     @employee_leave_ns.marshal_with(employee_leave_api_model)
     @expect(employee_leave_ns, employee_leave_api_model, ["id", "employee_id"])
+    @role([ROLE["MANAGER"]])
     def put(self, employee_id, leave_id):
         """Update a leave status by id"""
         leave_data = EmployeeLeave.query.filter_by(

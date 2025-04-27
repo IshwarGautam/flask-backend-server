@@ -1,4 +1,4 @@
-"""Chapter 6: SQLAlchemy migration with Flask Migrate"""
+"""Chapter 7: JWT Authentication and protect routes based on roles."""
 
 # pip install virtualenv
 # virtualenv venv
@@ -18,7 +18,20 @@ from flask_jwt_extended import JWTManager
 from api.employee_leave_routes import employee_leave_ns
 
 app = Flask(__name__)
-api = Api(app, doc="/docs", prefix="/api")
+api = Api(
+    app,
+    doc="/docs",
+    prefix="/api",
+    authorizations={
+        "Bearer Auth": {
+            "type": "apiKey",
+            "in": "header",
+            "name": "Authorization",
+            "description": "Enter your Bearer token in the format **'Bearer &lt;token&gt;'**",
+        }
+    },
+    security="Bearer Auth",
+)
 
 api.add_namespace(user_ns)
 api.add_namespace(auth_ns)

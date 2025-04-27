@@ -1,6 +1,7 @@
 # Define allowed values
 LEAVE_STATUSES = {"approved", "pending", "rejected"}
 LEAVE_TYPES = {"sick", "annual", "compensatory", "leave without pay"}
+ROLE = {"ADMIN": "admin", "EMPLOYEE": "employee", "MANAGER": "manager"}
 
 DEPARTMENT_AND_DESIGNATIONS = [
     {
