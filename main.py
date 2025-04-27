@@ -1,15 +1,16 @@
-"""Chapter 5: Implement login and sign up."""
+"""Chapter 6: SQLAlchemy migration with Flask Migrate"""
 
 # pip install virtualenv
 # virtualenv venv
 # venv/Scripts/activate (for windows)
 # source venv/bin/activate (for linux/macOS)
 
-# pip install flask flask-restx python-decouple flask-sqlalchemy flask-cors flask-jwt-extended
+# pip install flask flask-restx python-decouple flask-sqlalchemy flask-cors flask-jwt-extended flask-migrate
 from flask import Flask
 from flask_cors import CORS
 from config import DevConfig
 from database.exts import db
+from flask_migrate import Migrate
 from api.auth_routes import auth_ns
 from api.user_routes import user_ns
 from flask_restx import Api, Resource
@@ -32,6 +33,17 @@ CORS(app)
 db.init_app(app)
 
 JWTManager(app)
+Migrate(app, db, directory="database/migrations")
+# ====================== FLASK MIGRATE COMMANDS =========================
+# Set Flask app first
+# $env:FLASK_APP = "main.py" (in powershell)
+# set FLASK_APP=main.py (in command prompt)
+# export FLASK_APP=main.py (in Linux/macOS)
+# flask db init                   -> Create migrations folder (only once)
+# flask db migrate -m "<message>" -> Create migration scripts
+# flask db upgrade                -> Apply changes to the database
+# flask db downgrade              -> Rollback to previous version
+# =======================================================================
 
 
 @app.route("/")

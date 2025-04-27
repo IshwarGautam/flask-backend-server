@@ -2,6 +2,8 @@ from database.exts import db
 
 
 class EmployeeLeave(db.Model):
+    __tablename__ = "employee_leave"
+
     id = db.Column(db.Integer(), primary_key=True)
     employee_id = db.Column(db.Integer(), nullable=False)
     status = db.Column(db.String(), nullable=False)

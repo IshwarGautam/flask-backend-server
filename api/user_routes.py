@@ -40,6 +40,10 @@ class UsersResource(Resource):
         # Parse and validate request data
         args = user_parser.parse_args()
 
+        user = User.query.filter_by(email=args["email"]).first()
+        if user:
+            abort(409, "Email should be unique.")
+
         # Validate designation
         designation = validate_designation(args["department"], args["designation"])
         if not designation:
